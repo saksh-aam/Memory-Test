@@ -9,23 +9,53 @@ const random = (counter, setboard) => {
     )
   );
 };
-const createboard = (counter, board, setboard, setgrid) => {
-  setgrid(produce(board, (draft) => {}));
-  setTimeout(() => {
-    setboard(
-      Array.from({ length: counter }, () =>
-        Array.from({ length: counter }, () => 0)
-      )
-    );
-  }, 1000);
-};
+
+const stopped=(stop, tempgrid, setboard)=>{
+  if(stop){
+    return(
+      <div>
+        <h3>"Sorry! You clicked the wrong cell"</h3>
+        <div className="playboard">
+          {tempgrid.map((x, i) =>
+            x.map((_, j) => (
+              <div
+                key={`${i}-${j}`}
+                className={`cell ${!!tempgrid[i][j]}`}
+              ></div>
+            ))
+          )}
+        </div>
+      </div>
+    )
+  }
+}
+
+const nextlevel=(next, setnext, counter, setcounter, setrunning)=>{
+  if(next){
+    return(
+      <button
+        onClick={() => {
+          setcounter(counter + 1);
+          setrunning(true);
+          setnext(false)
+        }}
+      >
+        Next
+      </button>
+    )
+  }
+}
+
 function App() {
   const [counter, setcounter] = useState(0);
+  const [count, setcount] = useState(0);
   const [copy, setcopy] = useState(false);
-  const [start, setstart] = useState(false);
+  // const [start, setstart] = useState(false);
+  const [next, setnext] = useState(false);
+  const [create, setcreate] = useState(false);
   const [running, setrunning] = useState(false);
   const [stop, setstop] = useState(false);
-  const [error, setError] = useState("Sorry! You clicked the wrong cell");
+  // const [error, setError] = useState("Oops! You clicked the wrong cell");
   const [board, setboard] = useState(
     Array.from({ length: counter }, () =>
       Array.from({ length: counter }, () => 0)
@@ -51,12 +81,12 @@ function App() {
   useEffect(() => {
     if (copy) {
       setgrid(produce(board, (draft) => {}));
-      setstart(true);
-    }
+      setcreate(true);
+    }// eslint-disable-next-line
   }, [copy]);
 
   useEffect(() => {
-    if (start) {
+    if (create) {
       setTimeout(() => {
         setboard(
           Array.from({ length: counter }, () =>
@@ -64,11 +94,23 @@ function App() {
           )
         );
         setcopy(false);
-        setstart(false);
+        setcreate(false);
         setrunning(false);
       }, 3000);
-    }
-  }, [start]);
+    }// eslint-disable-next-line
+  }, [create]);
+
+  useEffect(()=>{
+    setcount(0)
+    for(let i=0; i<counter; i++){
+      for(let j=0; j<counter; j++){
+        if(tempgrid[i][j]){
+          setcount(count+1);
+        }
+      }
+    } console.log(count)
+    // eslint-disable-next-line
+  }, [tempgrid])
 
   return (
     <div className="App">
@@ -76,19 +118,13 @@ function App() {
       <button
         onClick={() => {
           setcounter(3);
+          setstop(false);
           setrunning(true);
         }}
       >
         Start
       </button>
-      <button
-        onClick={() => {
-          setcounter(counter + 1);
-          setrunning(true);
-        }}
-      >
-        Next
-      </button>
+      {nextlevel(next, setnext, counter, setcounter, setrunning)}
 
       <div className="playboard">
         {board.map((x, i) =>
@@ -98,14 +134,20 @@ function App() {
               className={`cell ${!!board[i][j]}`}
               onClick={() => {
                 if (!running) {
-                  console.log(running);
                   setboard(
                     produce(board, (draft) => {
                       draft[i][j] = draft[i][j] ^ 1;
                     })
                   );
+                  setcount(count-1);
+                  // console.log(count);
                   if (tempgrid[i][j] === board[i][j]) {
                     setstop(true);
+                    setrunning(true);
+                  }
+                  if(count===0){
+                    // setcount(0);
+                    setnext(true);
                   }
                 }
               }}
@@ -114,36 +156,10 @@ function App() {
         )}
       </div>
       <br />
-      <div className="playboard">
-        {tempgrid.map((x, i) =>
-          x.map((_, j) => (
-            <div
-              key={`${i}-${j}`}
-              className={`cell ${!!tempgrid[i][j]}`}
-              onClick={() => {
-                setboard(
-                  produce(tempgrid, (draft) => {
-                    draft[i][j] = draft[i][j] ^ 1;
-                  })
-                );
-              }}
-            ></div>
-          ))
-        )}
-      </div>
+      {stopped(stop, tempgrid, setboard)}
     </div>
   );
 }
 
 export default App;
 
-/*Yet to be done
-
-1. Creating a restart button which will appear when wrong cell is pressed and along with that it displays an error and tempgrid
-
-2. functionality to make sure the present board is equall to tempgrid and user can move to the next level
-
-3. As size of board increase the time laps betwenn reseting of grid must increase.
-
-4. minimising the use of UseEffect look into useReducer
-*/

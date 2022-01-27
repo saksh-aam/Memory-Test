@@ -3,24 +3,18 @@
   width: -webkit-min-content;
   width: -moz-min-content;
   width: min-content;
-  display: -ms-grid;
   display: grid;
-  -ms-grid-columns: (20px)[var];
-      grid-template-columns: repeat(var(--counter), 20px);
-  -ms-grid-rows: (20px)[var];
-      grid-template-rows: repeat(var(--counter), 20px);
+  grid-template-columns: repeat(var(--counter), 20px);
+  grid-template-rows: repeat(var(--counter), 20px);
   border: 1px solid black;
 }
-
 .playboard .cell {
   border: 1px solid #2f4a4e;
   background-color: #0c0c0c;
-  -webkit-transition: all 0.1s ease-out;
   transition: all 0.1s ease-out;
   border-radius: 2px;
   cursor: pointer;
 }
-
 .playboard .cell.true {
   background-color: rgba(21, 224, 130, 0.534);
 }
@@ -28,4 +22,7 @@
 button {
   margin: 10px;
 }
-/*# sourceMappingURL=App.css.map */
+
+h3 {
+  text-align: center;
+}/*# sourceMappingURL=App.css.map */
