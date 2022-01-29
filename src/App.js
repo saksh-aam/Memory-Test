@@ -30,8 +30,8 @@ const stopped=(stop, tempgrid, setboard)=>{
   }
 }
 
-const nextlevel=(next, setnext, counter, setcounter, setrunning)=>{
-  if(next){
+const nextlevel=(next, setnext, stop, counter, setcounter, setrunning)=>{
+  if(next && !stop){
     return(
       <button
         onClick={() => {
@@ -48,14 +48,13 @@ const nextlevel=(next, setnext, counter, setcounter, setrunning)=>{
 
 function App() {
   const [counter, setcounter] = useState(0);
-  const [count, setcount] = useState(0);
+  const [valid, setvalid] = useState(0);
   const [copy, setcopy] = useState(false);
-  // const [start, setstart] = useState(false);
   const [next, setnext] = useState(false);
   const [create, setcreate] = useState(false);
   const [running, setrunning] = useState(false);
   const [stop, setstop] = useState(false);
-  // const [error, setError] = useState("Oops! You clicked the wrong cell");
+  
   const [board, setboard] = useState(
     Array.from({ length: counter }, () =>
       Array.from({ length: counter }, () => 0)
@@ -68,7 +67,6 @@ function App() {
   );
 
   useEffect(() => {
-    // console.log(running);
     random(counter, setboard);
     setcopy(true);
   }, [counter]);
@@ -87,6 +85,14 @@ function App() {
 
   useEffect(() => {
     if (create) {
+      var count=0;
+      for(let i=0; i<counter; i++){
+        for(let j=0; j<counter; j++){
+          if(tempgrid[i][j]===1){
+            count++;
+          }
+        }
+      }setvalid(count);
       setTimeout(() => {
         setboard(
           Array.from({ length: counter }, () =>
@@ -100,18 +106,6 @@ function App() {
     }// eslint-disable-next-line
   }, [create]);
 
-  useEffect(()=>{
-    setcount(0)
-    for(let i=0; i<counter; i++){
-      for(let j=0; j<counter; j++){
-        if(tempgrid[i][j]){
-          setcount(count+1);
-        }
-      }
-    } console.log(count)
-    // eslint-disable-next-line
-  }, [tempgrid])
-
   return (
     <div className="App">
       <h1>Let's check your Memory</h1>
@@ -124,7 +118,7 @@ function App() {
       >
         Start
       </button>
-      {nextlevel(next, setnext, counter, setcounter, setrunning)}
+      {nextlevel(next, setnext, stop, counter, setcounter, setrunning)}
 
       <div className="playboard">
         {board.map((x, i) =>
@@ -139,14 +133,12 @@ function App() {
                       draft[i][j] = draft[i][j] ^ 1;
                     })
                   );
-                  setcount(count-1);
-                  // console.log(count);
+                  setvalid(valid-1);
                   if (tempgrid[i][j] === board[i][j]) {
                     setstop(true);
                     setrunning(true);
                   }
-                  if(count===0){
-                    // setcount(0);
+                  if(valid-1===0){
                     setnext(true);
                   }
                 }
